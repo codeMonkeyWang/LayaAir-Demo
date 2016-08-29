@@ -1,6 +1,6 @@
 {
   "0": {
-    "hitRadius": 10, 
+    "hitRadius": 30, 
     "hp": 5, 
     "speed": 0, 
     "type": "hero"

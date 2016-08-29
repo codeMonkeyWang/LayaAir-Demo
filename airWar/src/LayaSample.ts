@@ -1,4 +1,5 @@
-/**
+import Debug = laya.Debug_FPSStats;
+ /**
  * @class 程序的入口
  */
 class GameMain{
@@ -10,6 +11,13 @@ class GameMain{
     constructor()
     {
         Laya.init(480,852);
+
+        Laya.stage.scaleMode = "noborder";
+        Laya.stage.alignH = "center";
+        Laya.stage.screenMode = "horizontal";
+        Laya.Stat.show(0,5);
+
+
         var bg:BackGround = new BackGround();
         Laya.stage.addChild(bg);
         
@@ -28,6 +36,7 @@ class GameMain{
 
         Laya.stage.on("mousemove",this,this.onMouseMove)
        this.creatEnemy(10);
+       Laya.timer.frameLoop(1,this,this.onLoop)
     }
 
     onMouseMove(){
@@ -61,5 +70,31 @@ class GameMain{
         }
 
     }
+
+    onLoop():void{
+        //遍历所有飞机，更改飞机状态
+        for (var i: number = Laya.stage.numChildren - 1; i > -1; i--) {
+            var role: Role = Laya.stage.getChildAt(i) as Role;
+            if (role && role.speed) {
+                //根据飞机速度更改位置
+                role.y += role.speed;
+
+                //如果敌人移动到显示区域以外，则移除
+                if (role.y > 1000) {
+                    //从舞台移除
+                    role.removeSelf();
+                    //回收到对象池
+                    Laya.Pool.recover("role", role);
+                }
+            }
+        }
+        //每间隔30帧创建新的敌机
+        if (Laya.timer.currFrame % 60 === 0) {
+            this.creatEnemy(2);
+        }
+    }
+    private debug = new Debug();
 }
+
+
 new GameMain();
