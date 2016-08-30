@@ -72,24 +72,6 @@ var GameMain = (function () {
                     Laya.Pool.recover("role", role);
                 }
             }
-            //处理发射子弹逻辑
-            if (role.shootType > 0) {
-                //获取当前时间
-                var time = Laya.Browser.now();
-                //如果当前时间大于下次射击时间
-                if (time > role.shootTime) {
-                    //更新下次射击时间
-                    role.shootTime = time + role.shootInterval;
-                    //从对象池里面创建一个子弹
-                    var bullet = Laya.Pool.getItemByClass("role", Role);
-                    //初始化子弹信息
-                    bullet.init(RoleType.bullet1);
-                    //设置子弹发射初始化位置
-                    bullet.pos(role.x, role.y - role.hitRadius - 10);
-                    //添加到舞台上
-                    Laya.stage.addChild(bullet);
-                }
-            }
         }
         //检测碰撞，原理：获取角色对象，一一对比之间的位置，判断是否击中
         for (var i = Laya.stage.numChildren - 1; i > 0; i--) {
@@ -120,10 +102,35 @@ var GameMain = (function () {
         //如果主角死亡，则停止游戏循环
         if (this.hero.hp < 1) {
             Laya.timer.clear(this, this.onLoop);
+            Laya.SoundManager.playSound("res/sound/game_over.mp3");
         }
         //每间隔60帧创建新的敌机
         if (Laya.timer.currFrame % 120 === 0) {
             this.creatEnemy(2);
+        }
+        if (Laya.timer.currFrame % 10 === 0) {
+            for (var i = Laya.stage.numChildren - 1; i > -1; i--) {
+                var role = Laya.stage.getChildAt(i);
+                //处理发射子弹逻辑
+                if (role.shootType > 0) {
+                    //获取当前时间
+                    var time = Laya.Browser.now();
+                    //如果当前时间大于下次射击时间
+                    if (time > role.shootTime) {
+                        //更新下次射击时间
+                        role.shootTime = time + role.shootInterval;
+                        //从对象池里面创建一个子弹
+                        var bullet = Laya.Pool.getItemByClass("role", Role);
+                        //初始化子弹信息
+                        bullet.init(RoleType.bullet1);
+                        //设置子弹发射初始化位置
+                        bullet.pos(role.x, role.y - role.hitRadius - 10);
+                        //添加到舞台上
+                        Laya.stage.addChild(bullet);
+                        Laya.SoundManager.playSound("res/sound/bullet.mp3");
+                    }
+                }
+            }
         }
     };
     GameMain.prototype.lostHp = function (role, lostHp) {
@@ -134,6 +141,7 @@ var GameMain = (function () {
             role.playAction("hit");
         }
         else {
+            Laya.SoundManager.playSound("res/sound/" + role.type + "_down.mp3");
             //如果死亡，则播放爆炸动画
             if (role.isBullet) {
                 //如果是子弹，则直接隐藏，下次回收
