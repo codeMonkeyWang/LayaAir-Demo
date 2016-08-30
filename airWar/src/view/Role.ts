@@ -1,7 +1,10 @@
 /**
  * 角色类
  */
+
+enum RoleType{hero,enemy1,enemy2,enemy3,bullet1}
 class Role extends Laya.Sprite {
+    private roleTypeArr : Array<string> = ["hero","enemy1","enemy2","enemy3","bullet1"];
     private data ;
    //是否缓存了动画
     private static cached: boolean = false;
@@ -9,9 +12,9 @@ class Role extends Laya.Sprite {
     private body: Laya.Animation;
     //类型
     public type:string ;
+
     //阵营,0：我方，非0：敌方
     public camp: number;
-
     //血量
     public hp: number;
     //飞行速度
@@ -19,21 +22,43 @@ class Role extends Laya.Sprite {
     //攻击半径
     public hitRadius: number;
 
+
+    //射击类型
+    public shootType: number = 0;
+    //射击间隔
+    public shootInterval: number = 500;
+    //下次射击时间
+    public shootTime: number = Laya.Browser.now() + 1000;
+    //当前动作
+    public action: string;
+    //是否是子弹
+    public isBullet:boolean = false;
+
     constructor() {
         super();
     }
      
-    init(camp:number):void{    
+    init(type:RoleType):void{    
         
-        this.data = Laya.loader.getRes("res/airWar.json");
-        this.camp = camp;
+        if(!this.data){
+            this.data = Laya.loader.getRes("res/airWar_Data.json");
+        }
+
+        if(type === RoleType.bullet1){
+            this.isBullet = true;
+        }if(type === RoleType.hero){
+            this.shootType =1;
+        }
+        
+        this.type = this.roleTypeArr[type];
+
         //具体类型对应的Data
-        var typeData = this.data[this.camp+""];
-        this.type = typeData["type"];
+        var typeData = this.data[this.type];
+        this.camp = typeData["camp"];
         this.hp = typeData["hp"];
         this.speed = typeData["speed"];
-        this.hitRadius = typeData["hirRadius"];
-       
+        this.hitRadius = typeData["hitRadius"];
+
          //缓存公用动画模板，减少对象创建开销
         if (!Role.cached) {
             Role.cached = true;
@@ -60,21 +85,35 @@ class Role extends Laya.Sprite {
             Laya.Animation.createFrames(["war/enemy3_down1.png", "war/enemy3_down2.png", "war/enemy3_down3.png", "war/enemy3_down4.png", "war/enemy3_down5.png", "war/enemy3_down6.png"], "enemy3_down");
             //缓存enemy3_hit动画
             Laya.Animation.createFrames(["war/enemy3_hit.png"], "enemy3_hit");
+
+            Laya.Animation.createFrames(["war/bullet1.png"], "bullet1_fly");
         }
 
         if(!this.body){
             this.body = new Laya.Animation();
+            this.body.interval
             //把机体添加到容器内
             this.addChild(this.body);
+            this.body.on(Laya.Event.COMPLETE,this,this.onPlayComplete);
         }
        this.playAction("fly")
+
     }
 
     playAction(action:string):void{
+        this.action = action;
         this.body.play(0,true,this.type+"_"+ action)
         var bound :Laya.Rectangle = this.body.getBounds();
         this.body.pos(-bound.width/2,-bound.height/2);
 
+        
     }
-
+     onPlayComplete():void {
+        if(this.action === "down"){
+            this.body.stop();
+            this.visible = false;
+        }else if(this.action === "hit"){
+            this.playAction("fly")
+        }
+    }
 }
