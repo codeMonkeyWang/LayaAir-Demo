@@ -11,9 +11,8 @@ class GameMain{
     {
         Laya.init(480,852);
 
-        Laya.stage.scaleMode = "noborder";
+        Laya.stage.scaleMode = Laya.Stage.SCALE_NOBORDER
         Laya.stage.alignH = "center";
-        Laya.stage.screenMode = "horizontal";
         Laya.Stat.show();
 
         var bg:BackGround = new BackGround();
@@ -102,6 +101,7 @@ class GameMain{
                 //获取角色对象2
                 var role2: Role = Laya.stage.getChildAt(j) as Role;
 
+
                 //如果角色未死亡，并且阵营不同，才进行碰撞
                 if ( role1.camp != role2.camp && role2.hp>0) {
                     //计算碰撞区域
@@ -111,6 +111,7 @@ class GameMain{
                         //碰撞后掉血
                         this.lostHp(role1, 1);
                         this.lostHp(role2, 1);
+                        
                     }
                 }
             }
@@ -166,6 +167,14 @@ class GameMain{
                 //如果是子弹，则直接隐藏，下次回收
                 role.visible = false;
             } else {
+                if(role.type === "enemy3"){
+                    var ufo:Role = Laya.Pool.getItemByClass("role",Role);
+                    var r :number = Math.random();
+                    var ufoType:number = r<0.7 ? 5:6
+                    ufo.init(RoleType.ufo1)
+                    ufo.pos(role.x,role.y);
+                    Laya.stage.addChild(ufo);
+                }
                 role.playAction("down");
             }
         }

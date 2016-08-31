@@ -28,5 +28,17 @@
     "hitRadius": 10, 
     "hp": 5, 
     "speed": 0
+  }, 
+  "ufo1": {
+    "camp": 1, 
+    "hitRadius": 15, 
+    "hp": 1, 
+    "speed": 0
+  }, 
+  "ufo2": {
+    "camp": 1, 
+    "hitRadius": 15, 
+    "hp": 1, 
+    "speed": 0
   }
 }

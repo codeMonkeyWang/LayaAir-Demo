@@ -6,9 +6,8 @@ var GameMain = (function () {
         this.TEXTURE_PATH = "res/atlas/war.json";
         this.DATA_PATH = "res/airWar_Data.json";
         Laya.init(480, 852);
-        Laya.stage.scaleMode = "noborder";
+        Laya.stage.scaleMode = Laya.Stage.SCALE_NOBORDER;
         Laya.stage.alignH = "center";
-        Laya.stage.screenMode = "horizontal";
         Laya.Stat.show();
         var bg = new BackGround();
         Laya.stage.addChild(bg);
@@ -148,6 +147,14 @@ var GameMain = (function () {
                 role.visible = false;
             }
             else {
+                if (role.type === "enemy3") {
+                    var ufo = Laya.Pool.getItemByClass("role", Role);
+                    var r = Math.random();
+                    var ufoType = r < 0.7 ? 5 : 6;
+                    ufo.init(RoleType.ufo1);
+                    ufo.pos(role.x, role.y);
+                    Laya.stage.addChild(ufo);
+                }
                 role.playAction("down");
             }
         }

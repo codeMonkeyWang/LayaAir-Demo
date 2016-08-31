@@ -2,9 +2,9 @@
  * 角色类
  */
 
-enum RoleType{hero,enemy1,enemy2,enemy3,bullet1}
+enum RoleType{hero,enemy1,enemy2,enemy3,bullet1,ufo1,ufo2}
 class Role extends Laya.Sprite {
-    private roleTypeArr : Array<string> = ["hero","enemy1","enemy2","enemy3","bullet1"];
+    private roleTypeArr : Array<string> = ["hero","enemy1","enemy2","enemy3","bullet1","ufo1","ufo2"];
     private data ;
    //是否缓存了动画
     private static cached: boolean = false;
@@ -87,6 +87,9 @@ class Role extends Laya.Sprite {
             Laya.Animation.createFrames(["war/enemy3_hit.png"], "enemy3_hit");
 
             Laya.Animation.createFrames(["war/bullet1.png"], "bullet1_fly");
+
+            Laya.Animation.createFrames(["war/ufo1.png"], "ufo1_fly");
+            Laya.Animation.createFrames(["war/ufo2.png"], "ufo2_fly");
         }
 
         if(!this.body){

@@ -13,12 +13,14 @@ var RoleType;
     RoleType[RoleType["enemy2"] = 2] = "enemy2";
     RoleType[RoleType["enemy3"] = 3] = "enemy3";
     RoleType[RoleType["bullet1"] = 4] = "bullet1";
+    RoleType[RoleType["ufo1"] = 5] = "ufo1";
+    RoleType[RoleType["ufo2"] = 6] = "ufo2";
 })(RoleType || (RoleType = {}));
 var Role = (function (_super) {
     __extends(Role, _super);
     function Role() {
         _super.call(this);
-        this.roleTypeArr = ["hero", "enemy1", "enemy2", "enemy3", "bullet1"];
+        this.roleTypeArr = ["hero", "enemy1", "enemy2", "enemy3", "bullet1", "ufo1", "ufo2"];
         //射击类型
         this.shootType = 0;
         //射击间隔
@@ -69,6 +71,8 @@ var Role = (function (_super) {
             //缓存enemy3_hit动画
             Laya.Animation.createFrames(["war/enemy3_hit.png"], "enemy3_hit");
             Laya.Animation.createFrames(["war/bullet1.png"], "bullet1_fly");
+            Laya.Animation.createFrames(["war/ufo1.png"], "ufo1_fly");
+            Laya.Animation.createFrames(["war/ufo2.png"], "ufo2_fly");
         }
         if (!this.body) {
             this.body = new Laya.Animation();
