@@ -1,31 +1,43 @@
- /**
+
+
+/**
  * @class 程序的入口
+ * 
  */
-class GameMain{
+class Main{
     private hero:Role;
+    private level :number = 0;
+    private score: number = 0;
+    private levelUpScore : number = 10;
+    private bulletLevel:number = 0;
 
     private TEXTURE_PATH :string = "res/atlas/war.json";
     private DATA_PATH:string = "res/airWar_Data.json"
 
     constructor()
     {
-        Laya.init(480,852);
+        Laya.init(480,852,Laya.WebGL);
 
-        Laya.stage.scaleMode = Laya.Stage.SCALE_NOBORDER
-        Laya.stage.alignH = "center";
-        Laya.Stat.show();
-
-        var bg:BackGround = new BackGround();
-        Laya.stage.addChild(bg);
-        
         var assets: Array<any> = [];
         assets.push({ url: this.DATA_PATH, type: Laya.Loader.JSON });
         assets.push({ url: this.TEXTURE_PATH, type: Laya.Loader.ATLAS });
-
         Laya.loader.load(assets,Laya.Handler.create(this,this.onLoaded))
-    }
+   
+        Laya.stage.scaleMode = "showall";
+        // 设置剧中对齐
+        Laya.stage.alignH = "center";
+        // //设置横竖屏
+        Laya.stage.screenMode = "vertical";
+
+        //显示FPS
+        Laya.Stat.show(0, 50);
+ }
 
     onLoaded(){
+
+        var bg:BackGround = new BackGround();
+        Laya.stage.addChild(bg);
+
         this.hero= new Role();
         this.hero.init(RoleType.hero);
         this.hero.pos(240,700);
@@ -47,6 +59,7 @@ class GameMain{
             var r: number = Math.random();
             //根据随机数，随机敌人   
             var type: RoleType;
+        
             if (r<0.7) {
                 type = RoleType.enemy1;
             }else if(r<0.95){
@@ -111,7 +124,11 @@ class GameMain{
                         //碰撞后掉血
                         this.lostHp(role1, 1);
                         this.lostHp(role2, 1);
-                        
+                        this.score++;
+                        if(this.score >this.levelUpScore){
+                            this.level++;
+                            this.levelUpScore += this.level*5;
+                        }
                     }
                 }
             }
@@ -128,7 +145,7 @@ class GameMain{
             this.creatEnemy(2);
         }
 
-        if (Laya.timer.currFrame %10 === 0) {
+        if (Laya.timer.currFrame %5 === 0) {
             for (var i: number = Laya.stage.numChildren - 1; i > -1; i--) {
                 var role: Role = Laya.stage.getChildAt(i) as Role;
                 //处理发射子弹逻辑
@@ -139,14 +156,18 @@ class GameMain{
                     if (time > role.shootTime) {
                         //更新下次射击时间
                         role.shootTime = time + role.shootInterval;
-                        //从对象池里面创建一个子弹
-                        var bullet: Role = Laya.Pool.getItemByClass("role", Role);
-                        //初始化子弹信息
-                        bullet.init(RoleType.bullet1);
-                        //设置子弹发射初始化位置
-                        bullet.pos(role.x, role.y - role.hitRadius - 10);
-                        //添加到舞台上
-                        Laya.stage.addChild(bullet);
+                        for (var j = 0; j <this.hero.shootType; j++) {
+                            //从对象池里面创建一个子弹
+                            var bullet: Role = Laya.Pool.getItemByClass("role", Role);
+                            //初始化子弹信息
+                            bullet.init(RoleType.bullet1);
+
+                            var rolePlusX: number = (2*j-this.hero.shootType+1)*15
+                            //设置子弹发射初始化位置
+                            bullet.pos(role.x+rolePlusX, role.y - role.hitRadius - 10);
+                            //添加到舞台上
+                            Laya.stage.addChild(bullet);     
+                        }
                         Laya.SoundManager.playSound("res/sound/bullet.mp3");
                     }
                 }
@@ -160,7 +181,18 @@ class GameMain{
         if (role.hp > 0) {
             //如果未死亡，则播放受击动画
             role.playAction("hit");
-        } else {
+        } else if(role.type === "ufo1"){
+            this.bulletLevel ++;
+
+            this.hero.shootInterval = Math.min(Math.floor(this.bulletLevel/2)+1,4)
+            this.hero.shootInterval = 500 - 20*(this.bulletLevel>20 ? 20:this.bulletLevel);
+            role.visible = false;
+ 
+        }else if(role.type === "ufo2"){
+            role.visible = false;
+            this.hero.hp++;
+        }
+        else {
             Laya.SoundManager.playSound("res/sound/"+role.type+"_down.mp3")
             //如果死亡，则播放爆炸动画
             if (role.isBullet) {
@@ -182,4 +214,4 @@ class GameMain{
 }
 
 
-new GameMain();
+new Main();
