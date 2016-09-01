@@ -7,19 +7,19 @@
   }, 
   "enemy1": {
     "camp": 1, 
-    "hitRadius": 20, 
+    "hitRadius": 30, 
     "hp": 1, 
     "speed": 3
   }, 
   "enemy2": {
     "camp": 1, 
-    "hitRadius": 40, 
+    "hitRadius": 60, 
     "hp": 2, 
     "speed": 2
   }, 
   "enemy3": {
     "camp": 1, 
-    "hitRadius": 80, 
+    "hitRadius": 120, 
     "hp": 3, 
     "speed": 1
   }, 
@@ -31,13 +31,13 @@
   }, 
   "ufo1": {
     "camp": 1, 
-    "hitRadius": 15, 
+    "hitRadius": 25, 
     "hp": 1, 
     "speed": 0
   }, 
   "ufo2": {
     "camp": 1, 
-    "hitRadius": 15, 
+    "hitRadius": 25, 
     "hp": 1, 
     "speed": 0
   }

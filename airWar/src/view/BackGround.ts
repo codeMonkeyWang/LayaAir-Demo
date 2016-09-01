@@ -12,6 +12,9 @@ class BackGround extends Laya.Sprite {
         this.init();
     }
   
+    /**
+     * 初始化函数
+     */
     init(): void {
         //创建背景1
         this.bg1 = new Laya.Sprite();
@@ -33,6 +36,9 @@ class BackGround extends Laya.Sprite {
         Laya.timer.frameLoop(1, this, this.onLoop)
     }
   
+    /**
+     * 循环移动背景函数
+     */
     onLoop(): void {
         //背景容器每帧向下移动1像素
         this.y += 1;

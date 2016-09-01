@@ -12,6 +12,9 @@ var BackGround = (function (_super) {
         _super.call(this);
         this.init();
     }
+    /**
+     * 初始化函数
+     */
     BackGround.prototype.init = function () {
         //创建背景1
         this.bg1 = new Laya.Sprite();
@@ -30,6 +33,9 @@ var BackGround = (function (_super) {
         //创建一个帧循环，更新容器位置
         Laya.timer.frameLoop(1, this, this.onLoop);
     };
+    /**
+     * 循环移动背景函数
+     */
     BackGround.prototype.onLoop = function () {
         //背景容器每帧向下移动1像素
         this.y += 1;

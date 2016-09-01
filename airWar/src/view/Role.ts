@@ -40,6 +40,7 @@ class Role extends Laya.Sprite {
      
     init(type:RoleType):void{    
         
+        //通过json获取数据
         if(!this.data){
             this.data = Laya.loader.getRes("res/airWar_Data.json");
         }
@@ -50,13 +51,14 @@ class Role extends Laya.Sprite {
             this.shootType =1;
         }
         
+        //将枚举转换成数组中对应的字符
         this.type = this.roleTypeArr[type];
 
         //具体类型对应的Data
         var typeData = this.data[this.type];
         this.camp = typeData["camp"];
-        this.hp = typeData["hp"];
-        this.speed = typeData["speed"];
+        this.hp = typeData["hp"]* (Main.level/5+1);
+        this.speed = typeData["speed"]*(Main.level/10+1);
         this.hitRadius = typeData["hitRadius"];
 
          //缓存公用动画模板，减少对象创建开销
@@ -94,7 +96,7 @@ class Role extends Laya.Sprite {
 
         if(!this.body){
             this.body = new Laya.Animation();
-            this.body.interval
+            this.body.interval =50;
             //把机体添加到容器内
             this.addChild(this.body);
             this.body.on(Laya.Event.COMPLETE,this,this.onPlayComplete);
@@ -103,14 +105,18 @@ class Role extends Laya.Sprite {
 
     }
 
+    /**
+     * 用来加载这种帧动画
+     */
     playAction(action:string):void{
         this.action = action;
         this.body.play(0,true,this.type+"_"+ action)
         var bound :Laya.Rectangle = this.body.getBounds();
         this.body.pos(-bound.width/2,-bound.height/2);
 
-        
     }
+
+
      onPlayComplete():void {
         if(this.action === "down"){
             this.body.stop();
