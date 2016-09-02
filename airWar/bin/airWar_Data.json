@@ -20,7 +20,7 @@
   "enemy3": {
     "camp": 1, 
     "hitRadius": 120, 
-    "hp": 3, 
+    "hp": 10, 
     "speed": 1
   }, 
   "hero": {

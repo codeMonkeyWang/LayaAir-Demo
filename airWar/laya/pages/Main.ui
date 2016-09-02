@@ -2,8 +2,8 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":3,
-    "props":{"width":480,"sceneColor":"#000000","height":852},
+    "selecteID":7,
+    "props":{"width":480,"text":"Level:100            this.body.stop();             this.visible = false","sceneColor":"#000000","height":852},
     "nodeParent":-1,
     "label":"View",
     "isOpen":true,
@@ -22,7 +22,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":49,"x":397,"var":"pauseBtn","stateNum":"1","skin":"war/btn_pause.png"},
+            "props":{"y":22,"x":400,"var":"pauseBtn","stateNum":"1","skin":"war/btn_pause.png"},
             "nodeParent":1,
             "label":"Button(pauseBtn)",
             "isDirectory":false,
@@ -36,6 +36,86 @@
                     "__InPool":false
                 }],
             "compId":3,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":19,"x":17,"var":"hpLabel","text":"HP:100","styleSkin":"war/label.png","fontSize":20,"color":"#ffffff"},
+            "nodeParent":1,
+            "label":"Label(hpLabel)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "frames":[
+                {
+                    "type":1,
+                    "props":{"y":54,"x":53,"text":"label","styleSkin":"war/label.png"},
+                    "frame":0,
+                    "__InPool":false
+                }],
+            "compId":4,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":19,"x":99,"var":"levelLabel","text":"Level:100","styleSkin":"war/label.png","fontSize":20,"color":"#ffffff"},
+            "nodeParent":1,
+            "label":"Label(levelLabel)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "frames":[
+                {
+                    "type":1,
+                    "props":{"y":54,"x":53,"text":"label","styleSkin":"war/label.png"},
+                    "frame":0,
+                    "__InPool":false
+                }],
+            "compId":5,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":19,"x":201,"var":"scoreLabel","text":"Score:1000","styleSkin":"war/label.png","fontSize":20,"color":"#ffffff"},
+            "nodeParent":1,
+            "label":"Label(scoreLabel)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "frames":[
+                {
+                    "type":1,
+                    "props":{"y":54,"x":53,"text":"label","styleSkin":"war/label.png"},
+                    "frame":0,
+                    "__InPool":false
+                }],
+            "compId":6,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Label",
+            "props":{"y":521,"x":68,"width":350,"var":"infoLabel","text":"战斗结束","styleSkin":"war/label.png","height":204,"fontSize":30,"color":"#ffffff","align":"center"},
+            "nodeParent":1,
+            "label":"Label(infoLabel)",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "frames":[
+                {
+                    "type":1,
+                    "props":{"y":521,"x":136,"text":"label","styleSkin":"war/label.png"},
+                    "frame":0,
+                    "__InPool":false
+                }],
+            "compId":7,
             "child":[
                 ]
         }],

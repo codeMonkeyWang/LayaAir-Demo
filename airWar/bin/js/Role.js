@@ -47,7 +47,7 @@ var Role = (function (_super) {
         //具体类型对应的Data
         var typeData = this.data[this.type];
         this.camp = typeData["camp"];
-        this.hp = typeData["hp"] * (Main.level / 5 + 1);
+        this.hp = typeData["hp"] * (Main.level / 6 + 1);
         this.speed = typeData["speed"] * (Main.level / 10 + 1);
         this.hitRadius = typeData["hitRadius"];
         //缓存公用动画模板，减少对象创建开销
@@ -98,7 +98,7 @@ var Role = (function (_super) {
         else if (action === "down") {
             this.body.on(Laya.Event.COMPLETE, this, function () { _this.body.stop; _this.visible = false; });
         }
-        // this.body.play(0,true,this.type+"_"+ action) 
+        this.body.play(0, true, this.type + "_" + action);
         var bound = this.body.getBounds();
         this.body.pos(-bound.width / 2, -bound.height / 2);
     };

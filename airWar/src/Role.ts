@@ -55,7 +55,7 @@ class Role extends Laya.Sprite {
         //具体类型对应的Data
         var typeData = this.data[this.type];
         this.camp = typeData["camp"];
-        this.hp = typeData["hp"]* (Main.level/5+1);
+        this.hp = typeData["hp"]* (Main.level/6+1);
         this.speed = typeData["speed"]*(Main.level/10+1);
         this.hitRadius = typeData["hitRadius"];
 

@@ -28,7 +28,7 @@ class Main{
         Laya.stage.scaleMode = "showall";
         // 设置剧中对齐
         Laya.stage.alignH = "center";
-        // //设置横竖屏
+        //设置横竖屏
         Laya.stage.screenMode = "vertical";
         //显示FPS
         Laya.Stat.show(0, 50);
@@ -57,8 +57,6 @@ class Main{
         this.gameInfo = new GameInfo();
         Laya.stage.addChild(this.gameInfo);
 
-        this.hero= new Role();
-        this.roleBox.addChild(this.hero);
         this.restart();
 
     }
@@ -69,11 +67,13 @@ class Main{
         Main.level = 0;
         this.levelUpScore = 10;
         this.bulletLevel = 0;
-        // this.gameInfo.reset();
+        this.gameInfo.reset();
 
+        this.hero= new Role();
         this.hero.init(RoleType.hero);
         this.hero.pos(240,700);
-        // this.hero.visible = true;
+        this.hero.visible = true;
+        this.roleBox.addChild(this.hero);
 
         for (var i: number = this.roleBox.numChildren - 1; i > -1; i--) {
             var role: Role = this.roleBox.getChildAt(i) as Role;
@@ -127,8 +127,8 @@ class Main{
             Laya.timer.clear(this, this.onLoop);
             Laya.SoundManager.playSound("res/sound/game_over.mp3");
 
-            // this.gameInfo.infoLabel.text = "GameOver,分数"+this.score+"\n点击这里重新开始"
-            // this.gameInfo.infoLabel.once("click",this,this.restart);
+            this.gameInfo.infoLabel.text = "GameOver,分数"+this.score+"\n点击这里重新开始"
+            this.gameInfo.infoLabel.once("click",this,this.restart);
         }
 
         //关卡越高，创建敌机间隔越短
@@ -147,7 +147,7 @@ class Main{
         }
 
         //生成boss
-        if (Laya.timer.currFrame % (900 - cutTime * 4) === 0) {
+        if (Laya.timer.currFrame % (400 - cutTime * 4) === 0) {
             this.creatEnemy(RoleType.enemy3, 1);
             //播放boss出场声音
             Laya.SoundManager.playSound("res/sound/enemy3_out.mp3");
@@ -209,10 +209,10 @@ class Main{
                         this.lostHp(role1, 1);
                         this.lostHp(role2, 1);
                         this.score++;
-                        // this.gameInfo.setScore(this.score)
+                        this.gameInfo.setScore(this.score)
                         if(this.score >this.levelUpScore){
                             Main.level++;
-                            // this.gameInfo.setLevel(Main.level)
+                            this.gameInfo.setLevel(Main.level)
                             this.levelUpScore += Main.level*5;
                         }
                     }
@@ -290,7 +290,7 @@ class Main{
             }
         }
         else if(role == this.hero){
-            // this.gameInfo.setHp(role.hp);
+            this.gameInfo.setHp(role.hp);
             role.playAction("down");
         }
         else {
@@ -304,7 +304,7 @@ class Main{
                     var ufo:Role = Laya.Pool.getItemByClass("role",Role);
                     var r :number = Math.random();
                     var ufoType:number = r<0.7 ? 5:6 //5 6 是道具对应RoleType枚举的值
-                    ufo.init(RoleType.ufo1)
+                    ufo.init(ufoType)
                     ufo.pos(role.x,role.y);
                     this.roleBox.addChild(ufo);
                 }
