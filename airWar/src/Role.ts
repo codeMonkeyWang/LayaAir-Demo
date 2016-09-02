@@ -21,14 +21,12 @@ class Role extends Laya.Sprite {
     public speed: number;
     //攻击半径
     public hitRadius: number;
-
-
     //射击类型
     public shootType: number = 0;
     //射击间隔
     public shootInterval: number = 500;
     //下次射击时间
-    public shootTime: number = Laya.Browser.now() + 1000;
+    public shootTime: number = Laya.Browser.now() + 100;
     //当前动作
     public action: string;
     //是否是子弹
@@ -44,7 +42,7 @@ class Role extends Laya.Sprite {
         if(!this.data){
             this.data = Laya.loader.getRes("res/airWar_Data.json");
         }
-
+        this.isBullet = false;
         if(type === RoleType.bullet1){
             this.isBullet = true;
         }if(type === RoleType.hero){
@@ -75,7 +73,7 @@ class Role extends Laya.Sprite {
             Laya.Animation.createFrames(["war/enemy1_down1.png", "war/enemy1_down2.png", "war/enemy1_down3.png", "war/enemy1_down4.png"], "enemy1_down");
   
             //缓存enemy2_fly动画
-            Laya.Animation.createFrames(["war/enemy2.png"], "enemy2_fly");
+            Laya.Animation.createFrames(["war/enemy2_fly.png"], "enemy2_fly");
             //缓存enemy2_down动画
             Laya.Animation.createFrames(["war/enemy2_down1.png", "war/enemy2_down2.png", "war/enemy2_down3.png", "war/enemy2_down4.png"], "enemy2_down");
             //缓存enemy2_hit动画
@@ -99,7 +97,7 @@ class Role extends Laya.Sprite {
             this.body.interval =50;
             //把机体添加到容器内
             this.addChild(this.body);
-            this.body.on(Laya.Event.COMPLETE,this,this.onPlayComplete);
+
         }
        this.playAction("fly")
 
@@ -109,20 +107,19 @@ class Role extends Laya.Sprite {
      * 用来加载这种帧动画
      */
     playAction(action:string):void{
+
         this.action = action;
-        this.body.play(0,true,this.type+"_"+ action)
+
+        //播放完动画的监听
+        if(action === "hit"){
+            this.body.on(Laya.Event.COMPLETE,this,()=>{this.playAction("fly")});
+        }else if(action === "down"){
+            this.body.on(Laya.Event.COMPLETE,this,()=>{this.body.stop;this.visible = false});
+        }
+
+        this.body.play(0,true,this.type+"_"+ action) 
         var bound :Laya.Rectangle = this.body.getBounds();
         this.body.pos(-bound.width/2,-bound.height/2);
 
-    }
-
-
-     onPlayComplete():void {
-        if(this.action === "down"){
-            this.body.stop();
-            this.visible = false;
-        }else if(this.action === "hit"){
-            this.playAction("fly")
-        }
     }
 }

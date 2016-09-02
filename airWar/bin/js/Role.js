@@ -1,34 +1,55 @@
+/**
+ * 角色类
+ */
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-/**
- * 角色类
- */
+var RoleType;
+(function (RoleType) {
+    RoleType[RoleType["hero"] = 0] = "hero";
+    RoleType[RoleType["enemy1"] = 1] = "enemy1";
+    RoleType[RoleType["enemy2"] = 2] = "enemy2";
+    RoleType[RoleType["enemy3"] = 3] = "enemy3";
+    RoleType[RoleType["bullet1"] = 4] = "bullet1";
+    RoleType[RoleType["ufo1"] = 5] = "ufo1";
+    RoleType[RoleType["ufo2"] = 6] = "ufo2";
+})(RoleType || (RoleType = {}));
 var Role = (function (_super) {
     __extends(Role, _super);
-    function Role(camp) {
+    function Role() {
         _super.call(this);
-        this.camp = camp;
-        if (!this.data) {
-            Laya.loader.load("res/airWar.json", Laya.Handler.create(this, this.init), null, Laya.Loader.JSON);
-        }
-        else {
-            this.init();
-        }
+        this.roleTypeArr = ["hero", "enemy1", "enemy2", "enemy3", "bullet1", "ufo1", "ufo2"];
+        //射击类型
+        this.shootType = 0;
+        //射击间隔
+        this.shootInterval = 500;
+        //下次射击时间
+        this.shootTime = Laya.Browser.now() + 100;
+        //是否是子弹
+        this.isBullet = false;
     }
-    Role.prototype.init = function () {
+    Role.prototype.init = function (type) {
+        //通过json获取数据
         if (!this.data) {
-            this.data = Laya.loader.getRes("res/airWar.json");
-            console.log(this.data);
+            this.data = Laya.loader.getRes("res/airWar_Data.json");
         }
+        this.isBullet = false;
+        if (type === RoleType.bullet1) {
+            this.isBullet = true;
+        }
+        if (type === RoleType.hero) {
+            this.shootType = 1;
+        }
+        //将枚举转换成数组中对应的字符
+        this.type = this.roleTypeArr[type];
         //具体类型对应的Data
-        var typeData = this.data[this.camp + ""];
-        this.type = typeData["type"];
-        this.hp = typeData["hp"];
-        this.speed = typeData["speed"];
-        this.hitRadius = typeData["hirRadius"];
+        var typeData = this.data[this.type];
+        this.camp = typeData["camp"];
+        this.hp = typeData["hp"] * (Main.level / 5 + 1);
+        this.speed = typeData["speed"] * (Main.level / 10 + 1);
+        this.hitRadius = typeData["hitRadius"];
         //缓存公用动画模板，减少对象创建开销
         if (!Role.cached) {
             Role.cached = true;
@@ -41,7 +62,7 @@ var Role = (function (_super) {
             //缓存enemy1_down动画
             Laya.Animation.createFrames(["war/enemy1_down1.png", "war/enemy1_down2.png", "war/enemy1_down3.png", "war/enemy1_down4.png"], "enemy1_down");
             //缓存enemy2_fly动画
-            Laya.Animation.createFrames(["war/enemy2.png"], "enemy2_fly");
+            Laya.Animation.createFrames(["war/enemy2_fly.png"], "enemy2_fly");
             //缓存enemy2_down动画
             Laya.Animation.createFrames(["war/enemy2_down1.png", "war/enemy2_down2.png", "war/enemy2_down3.png", "war/enemy2_down4.png"], "enemy2_down");
             //缓存enemy2_hit动画
@@ -52,16 +73,32 @@ var Role = (function (_super) {
             Laya.Animation.createFrames(["war/enemy3_down1.png", "war/enemy3_down2.png", "war/enemy3_down3.png", "war/enemy3_down4.png", "war/enemy3_down5.png", "war/enemy3_down6.png"], "enemy3_down");
             //缓存enemy3_hit动画
             Laya.Animation.createFrames(["war/enemy3_hit.png"], "enemy3_hit");
+            Laya.Animation.createFrames(["war/bullet1.png"], "bullet1_fly");
+            Laya.Animation.createFrames(["war/ufo1.png"], "ufo1_fly");
+            Laya.Animation.createFrames(["war/ufo2.png"], "ufo2_fly");
         }
         if (!this.body) {
             this.body = new Laya.Animation();
+            this.body.interval = 50;
             //把机体添加到容器内
             this.addChild(this.body);
         }
         this.playAction("fly");
     };
+    /**
+     * 用来加载这种帧动画
+     */
     Role.prototype.playAction = function (action) {
-        this.body.play(0, true, this.type + "_" + action);
+        var _this = this;
+        this.action = action;
+        //播放完动画的监听
+        if (action === "hit") {
+            this.body.on(Laya.Event.COMPLETE, this, function () { _this.playAction("fly"); });
+        }
+        else if (action === "down") {
+            this.body.on(Laya.Event.COMPLETE, this, function () { _this.body.stop; _this.visible = false; });
+        }
+        // this.body.play(0,true,this.type+"_"+ action) 
         var bound = this.body.getBounds();
         this.body.pos(-bound.width / 2, -bound.height / 2);
     };

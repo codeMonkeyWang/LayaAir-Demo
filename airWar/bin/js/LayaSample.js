@@ -12,7 +12,7 @@ var Main = (function () {
         this.bulletLevel = 0;
         this.TEXTURE_PATH = "res/atlas/war.json";
         this.DATA_PATH = "res/airWar_Data.json";
-        Laya.init(480, 852);
+        Laya.init(480, 852, Laya.WebGL);
         //设置显示所有内容
         Laya.stage.scaleMode = "showall";
         // 设置剧中对齐
@@ -33,13 +33,49 @@ var Main = (function () {
     Main.prototype.onLoaded = function () {
         var bg = new BackGround();
         Laya.stage.addChild(bg);
+        this.roleBox = new Laya.Sprite();
+        Laya.stage.addChild(this.roleBox);
+        this.gameInfo = new GameInfo();
+        Laya.stage.addChild(this.gameInfo);
         this.hero = new Role();
+        this.roleBox.addChild(this.hero);
+        this.restart();
+    };
+    Main.prototype.restart = function () {
+        this.score = 0;
+        Main.level = 0;
+        this.levelUpScore = 10;
+        this.bulletLevel = 0;
+        // this.gameInfo.reset();
         this.hero.init(RoleType.hero);
         this.hero.pos(240, 700);
-        Laya.stage.addChild(this.hero);
-        Laya.stage.on(Laya.Event.MOUSE_MOVE, this, this.onMouseMove);
-        //定时销毁
+        // this.hero.visible = true;
+        for (var i = this.roleBox.numChildren - 1; i > -1; i--) {
+            var role = this.roleBox.getChildAt(i);
+            if (role != this.hero) {
+                role.removeSelf();
+                //回收之前，重置属性信息
+                role.visible = true;
+                role.isBullet = false;
+                //回收到对象池
+                Laya.Pool.recover("role", role);
+            }
+        }
+        this.resume();
+    };
+    /**暂停 */
+    Main.prototype.pause = function () {
+        //停止游戏主循环
+        Laya.timer.clear(this, this.onLoop);
+        //移除舞台的鼠标移动事件监听
+        Laya.stage.off("mousemove", this, this.onMouseMove);
+    };
+    /**恢复 */
+    Main.prototype.resume = function () {
+        //创建游戏主循环
         Laya.timer.frameLoop(1, this, this.onLoop);
+        //监听舞台的鼠标移动事件
+        Laya.stage.on("mousemove", this, this.onMouseMove);
     };
     /**
      * 处理鼠标（手指）移动的方法
@@ -85,8 +121,8 @@ var Main = (function () {
      */
     Main.prototype.roleMove = function () {
         //遍历所有飞机，更改飞机状态
-        for (var i = Laya.stage.numChildren - 1; i > -1; i--) {
-            var role = Laya.stage.getChildAt(i);
+        for (var i = this.roleBox.numChildren - 1; i > -1; i--) {
+            var role = this.roleBox.getChildAt(i);
             if (role && role.speed) {
                 //根据飞机速度更改位置
                 role.y += role.speed;
@@ -95,7 +131,6 @@ var Main = (function () {
                     //从舞台移除
                     role.removeSelf();
                     //回收之前，重置属性信息
-                    role.isBullet = false;
                     role.visible = true;
                     //回收到对象池
                     Laya.Pool.recover("role", role);
@@ -108,18 +143,18 @@ var Main = (function () {
      */
     Main.prototype.collisionDetection = function () {
         //检测碰撞，原理：获取角色对象，一一对比之间的位置，判断是否击中
-        for (var i = Laya.stage.numChildren - 1; i > 0; i--) {
+        for (var i = this.roleBox.numChildren - 1; i > -1; i--) {
             //获取角色对象1
-            var role1 = Laya.stage.getChildAt(i);
+            var role1 = this.roleBox.getChildAt(i);
             //如果角色已经死亡，则忽略
             if (role1.hp < 1)
                 continue;
-            for (var j = i - 1; j > 0; j--) {
+            for (var j = i - 1; j > -1; j--) {
                 //如果角色已经死亡，则忽略
                 if (!role1.visible)
                     continue;
                 //获取角色对象2
-                var role2 = Laya.stage.getChildAt(j);
+                var role2 = this.roleBox.getChildAt(j);
                 //如果角色未死亡，并且阵营不同，才进行碰撞
                 if (role1.camp != role2.camp && role2.hp > 0) {
                     //计算碰撞区域
@@ -130,24 +165,14 @@ var Main = (function () {
                         this.lostHp(role1, 1);
                         this.lostHp(role2, 1);
                         this.score++;
+                        // this.gameInfo.setScore(this.score)
                         if (this.score > this.levelUpScore) {
                             Main.level++;
+                            // this.gameInfo.setLevel(Main.level)
                             this.levelUpScore += Main.level * 5;
                         }
                     }
                 }
-            }
-        }
-    };
-    /**
-     * 发射子弹all
-     */
-    Main.prototype.allShoot = function () {
-        for (var i = Laya.stage.numChildren - 1; i > -1; i--) {
-            var role = Laya.stage.getChildAt(i);
-            //处理发射子弹逻辑
-            if (role.shootType > 0) {
-                this.oneShoot(role);
             }
         }
     };
@@ -170,7 +195,7 @@ var Main = (function () {
                 //设置子弹发射初始化位置
                 bullet.pos(role.x + rolePlusX, role.y - role.hitRadius - 10);
                 //添加到舞台上
-                Laya.stage.addChild(bullet);
+                this.roleBox.addChild(bullet);
             }
             Laya.SoundManager.playSound("res/sound/bullet.mp3");
         }
@@ -186,7 +211,7 @@ var Main = (function () {
             //随机位置
             enemy.pos(Math.random() * 400 + 40, -Math.random() * 200);
             //添加到舞台上
-            Laya.stage.addChild(enemy);
+            this.roleBox.addChild(enemy);
         }
     };
     /**
@@ -201,16 +226,23 @@ var Main = (function () {
             this.hero.shootType = Math.min(Math.floor(this.bulletLevel / 2) + 1, 4);
             this.hero.shootInterval = 500 - 20 * (this.bulletLevel > 20 ? 20 : this.bulletLevel);
             role.visible = false;
+            Laya.SoundManager.playSound("res/sound/achievement.mp3");
         }
         else if (role.type === "ufo2") {
             //血量增加
             role.visible = false;
             this.hero.hp++;
+            // this.gameInfo.setHp(this.hero.hp);
+            Laya.SoundManager.playSound("res/sound/achievement.mp3");
         }
         else if (role.hp > 0) {
             if (!role.isBullet) {
                 role.playAction("hit");
             }
+        }
+        else if (role == this.hero) {
+            // this.gameInfo.setHp(role.hp);
+            role.playAction("down");
         }
         else {
             //如果死亡，则播放爆炸动画
@@ -219,16 +251,14 @@ var Main = (function () {
                 role.visible = false;
             }
             else {
-                if (role.type != "hero") {
-                    Laya.SoundManager.playSound("res/sound/" + role.type + "_down.mp3");
-                }
+                Laya.SoundManager.playSound("res/sound/" + role.type + "_down.mp3");
                 if (role.type === "enemy3") {
                     var ufo = Laya.Pool.getItemByClass("role", Role);
                     var r = Math.random();
-                    var ufoType = r < 0.7 ? 5 : 6;
+                    var ufoType = r < 0.7 ? 5 : 6; //5 6 是道具对应RoleType枚举的值
                     ufo.init(RoleType.ufo1);
                     ufo.pos(role.x, role.y);
-                    Laya.stage.addChild(ufo);
+                    this.roleBox.addChild(ufo);
                 }
                 role.playAction("down");
             }
@@ -237,5 +267,5 @@ var Main = (function () {
     Main.level = 0;
     return Main;
 }());
-new Main();
+var gameInstance = new Main();
 //# sourceMappingURL=LayaSample.js.map
